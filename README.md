@@ -1,4 +1,4 @@
-# Triggers-Efficiencies
+# Triggers-Efficiencies                    (view code with tabsize = 2) 
 **Requirements: Pythia8, FASTJET3 and ROOT6**
 
 This repository holds classes of CERN lab trigger objects usefull in calculating efficencies for various jet, electroeeak and MET events. efftemp.cc is an example script demonstrates how the Trigger class can be used in efficiencie calculations for a defined trigger menu. The objects are compiled alongside the pythia8 makefile with root6, FASTJET3 plugin flags included. 
