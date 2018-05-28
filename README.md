@@ -9,7 +9,7 @@ This repository holds classes of CERN trigger objects usefull in calculating eff
 ***Current Implementation:***
 
  * Single & Multijet Triggers
-    * (working on Fat, R = 1.0 , vs slim, R = 0.4, single jet triggers)
+   * Jet clustering using fastjet
  * Lepton & Photon Triggers
     * Isolation algorithm for tight criteria
  * HT Triggers
