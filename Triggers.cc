@@ -19,16 +19,16 @@ Triggers::~Triggers(){
 **********************************************************************************/
 void Triggers::InitializeCounter(){
 
-	N_JET_ONE							= 0;
-	N_JET_THREE					  = 0;
-	N_JET_FOUR 					  = 0;
-	N_JET_FIVE						= 0;
-	N_JET_SIX							= 0;
-	N_ELECTRON						= 0;
-	N_MUON 							  = 0;
-	N_GAMMA 							= 0;
-	N_MET 								= 0;
-	N_HT 									= 0;
+	N_JET_ONE	= 0;
+	N_JET_THREE	= 0;
+	N_JET_FOUR 	= 0;
+	N_JET_FIVE	= 0;
+	N_JET_SIX	= 0;
+	N_ELECTRON	= 0;
+	N_MUON 		= 0;
+	N_GAMMA 	= 0;
+	N_MET 		= 0;
+	N_HT 		= 0;
 }
 /******************************************************************************//**
 * Initialise trigger call flags
@@ -45,7 +45,7 @@ void Triggers::InitializeFlags(){
 void Triggers::InitializeMatching(Pythia *pythia)
 {
 
-	UserHooks* matching            = NULL;
+  UserHooks* matching            = NULL;
 
   // For jet matching, initialise the respective user hooks code.
   CombineMatchingInput combined;
@@ -90,18 +90,18 @@ void Triggers::eventElectroWeak(Pythia *pythia)
 
 			if(abs( pythia -> event[i].eta() ) > TRACKER_ETA) continue;
 
-	    if(abs(pythia -> event[i].id()) == 11 && pythia -> event[i].pT() > ELECTRON_HL ){
+	    	if(abs(pythia -> event[i].id()) == 11 && pythia -> event[i].pT() > ELECTRON_HL ){
 
-	    	electron.push_back(i); // fill with electron candidate
-	    }
-	    if(abs(pythia -> event[i].id()) == 13 && pythia -> event[i].pT() > MUON_HL ){
+	    		electron.push_back(i); // fill with electron candidate
+	    	}
+	   		if(abs(pythia -> event[i].id()) == 13 && pythia -> event[i].pT() > MUON_HL ){
 
-	      muon.push_back(i); // fill with muon candidate
-	    }
-	    if(abs(pythia -> event[i].id()) == 22 && pythia -> event[i].pT() > GAMMA_HL ){
+	     		muon.push_back(i); // fill with muon candidate
+	   	    }
+	        if(abs(pythia -> event[i].id()) == 22 && pythia -> event[i].pT() > GAMMA_HL ){
 
-	      gamma.push_back(i); // fill with photon candidate
-	    }
+	        	gamma.push_back(i); // fill with photon candidate
+	    	}
 		}
 	}// end of particle 
 }
@@ -158,8 +158,7 @@ void Triggers::eventTree(Pythia *pythia, fastjet::JetDefinition jetDef)
 /******************************************************************************//**
 * Jet clustering algorithm
 **********************************************************************************/
-void Triggers::JetClustering(vector <fastjet::PseudoJet> fjInputs, 
-																		 fastjet::JetDefinition jetDef){
+void Triggers::JetClustering(vector <fastjet::PseudoJet> fjInputs, fastjet::JetDefinition jetDef){
 
 	vector <fastjet::PseudoJet> inclusiveJets;
 
