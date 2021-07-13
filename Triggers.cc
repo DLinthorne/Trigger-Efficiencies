@@ -19,25 +19,31 @@ Triggers::~Triggers(){
 **********************************************************************************/
 void Triggers::InitializeCounter(){
 
-	N_JET_ONE							= 0;
-	N_JET_THREE					  = 0;
-	N_JET_FOUR 					  = 0;
-	N_JET_FIVE						= 0;
-	N_JET_SIX							= 0;
-	N_ELECTRON						= 0;
-	N_MUON 							  = 0;
-	N_GAMMA 							= 0;
-	N_MET 								= 0;
-	N_HT 									= 0;
+	// High level counters
+	N_JET_ONE							= 0, N_JET_THREE					  = 0,
+	N_JET_FOUR 					  = 0, N_JET_FIVE			  			= 0,
+	N_JET_SIX							= 0, N_ELECTRON 						= 0,
+	N_MUON 							  = 0, N_GAMMA 								= 0,
+	N_MET 								= 0, N_HT 									= 0,
+	N_JET_ONE_FAT					= 0;
+	// Lower level counters
+	N_JET_ONE_L						= 0, N_JET_THREE_L				  = 0,
+	N_JET_FOUR_L 				  = 0, N_JET_FIVE_L			  		= 0,
+	N_JET_SIX_L						= 0, N_ELECTRON_L 					= 0,
+	N_MUON_L 						  = 0, N_GAMMA_L 							= 0,
+	N_MET_L 							= 0, N_HT_L 								= 0;
+
 }
 /******************************************************************************//**
 * Initialise trigger call flags
 **********************************************************************************/
 void Triggers::InitializeFlags(){
 
-	HT_CALL				= kFALSE;
-	MULTIJET_CALL = kFALSE;
-	EW_CALL				= kFALSE;
+	HT_HL_CALL				= false , 	HT_LL_CALL				= false,
+	MULTIJET_HL_CALL  = false ,   MULTIJET_LL_CALL  = false,
+	EW_HL_CALL				= false , 	EW_LL_CALL				= false,
+	MET_HL_CALL 			= false ,	  MET_LL_CALL 			= false;
+
 }
 /******************************************************************************//**
 * Initialise jet matching in pythia
@@ -69,20 +75,20 @@ void Triggers::InitializePythia(Pythia *pythia)
 /******************************************************************************//**
 * Pythia event for Electro-Weak Initial State Radiation 
 **********************************************************************************/
-void Triggers::eventElectroWeak(Pythia *pythia)
+void Triggers::eventElectroWeak(Pythia *pythia, fastjet::JetDefinition jetDef)
 {
 
-	electron.resize(0);
-	muon.resize(0);
-	gamma.resize(0);
+	electron_hl.resize(0), muon_hl.resize(0), gamma_hl.resize(0),
+	electron_ll.resize(0), muon_ll.resize(0), gamma_ll.resize(0),
+	fjInputs.resize(0), missingETvec.reset();
 
 	for (int i = 0; i < pythia -> event.size(); ++i) {
 
 		// Selection process for particles to be clustered
 		if( pythia -> event[i].isFinal() ){
 
-			if(pythia -> event[i].isVisible() && abs( pythia -> event[i].eta() ) 
-				< FCAL_MAX_ETA  ){
+			if(pythia -> event[i].isVisible() && ( abs( pythia -> event[i].eta() ) 
+				< FCAL_MAX_ETA ) ){
 				missingETvec += pythia -> event[i].p();
 			}
 
@@ -90,20 +96,38 @@ void Triggers::eventElectroWeak(Pythia *pythia)
 
 			if(abs( pythia -> event[i].eta() ) > TRACKER_ETA) continue;
 
+			fastjet::PseudoJet particleTemp = pythia -> event[i];
+
+			fjInputs.push_back( particleTemp);
+
 	    if(abs(pythia -> event[i].id()) == 11 && pythia -> event[i].pT() > ELECTRON_HL ){
 
-	    	electron.push_back(i); // fill with electron candidate
+	    	electron_hl.push_back(i); // fill with electron candidate
 	    }
 	    if(abs(pythia -> event[i].id()) == 13 && pythia -> event[i].pT() > MUON_HL ){
 
-	      muon.push_back(i); // fill with muon candidate
+	      muon_hl.push_back(i); // fill with muon candidate
 	    }
 	    if(abs(pythia -> event[i].id()) == 22 && pythia -> event[i].pT() > GAMMA_HL ){
 
-	      gamma.push_back(i); // fill with photon candidate
+	      gamma_hl.push_back(i); // fill with photon candidate
+	    }
+	    if(abs(pythia -> event[i].id()) == 11 && pythia -> event[i].pT() > ELECTRON_LL ){
+
+	    	electron_ll.push_back(i); // fill with electron candidate
+	    }
+	    if(abs(pythia -> event[i].id()) == 13 && pythia -> event[i].pT() > MUON_LL ){
+
+	      muon_ll.push_back(i); // fill with muon candidate
+	    }
+	    if(abs(pythia -> event[i].id()) == 22 && pythia -> event[i].pT() > GAMMA_LL ){
+
+	      gamma_ll.push_back(i); // fill with photon candidate
 	    }
 		}
 	}// end of particle 
+	JetClustering(fjInputs, jetDef);
+
 }
 /******************************************************************************//**
 * Pythia event for Tree level process (No ISR) 
@@ -205,29 +229,29 @@ vector <fastjet::PseudoJet> Triggers::SortedJets(){
 /******************************************************************************//**
 * Call to privately stored leptons (must be found from EW event first)
 **********************************************************************************/
-vector <double> Triggers::electrons(){ 
+vector <double> Triggers::electronsHL(){ 
 
-	return electron;
+	return electron_hl;
 }
-vector <double> Triggers::muons(){ 
+vector <double> Triggers::muonsHL(){ 
 
-	return muon;
+	return muon_hl;
 }
-vector <double> Triggers::gammas(){ 
+vector <double> Triggers::gammasHL(){ 
 
-	return gamma;
+	return gamma_hl;
 }
-vector <double> Triggers::dielectrons(){ 
+vector <double> Triggers::electronsLL(){ 
 
-	return di_electron;
+	return electron_ll;
 }
-vector <double> Triggers::dimuons(){ 
+vector <double> Triggers::muonsLL(){ 
 
-	return di_muon;
+	return muon_ll;
 }
-vector <double> Triggers::digammas(){ 
+vector <double> Triggers::gammasLL(){ 
 
-	return di_gamma;
+	return gamma_ll;
 }
 /******************************************************************************//**
 * HT Calulation ( Scalar sum of jet transverse momentum in event)
@@ -245,9 +269,9 @@ double Triggers::HT(){
 /******************************************************************************//**
 * Lepton isolation algorithm: returns vector of candidate I-variable
 **********************************************************************************/
-vector <double> Triggers::LeptonISO(Pythia *pythia, vector <double> candidate){
+bool Triggers::LeptonISO(Pythia *pythia, vector <double> candidate){
 
-	vector <double> Iso;
+	bool ISO_CUT_FLAG = false;
 
 	//run over lepton candidates
 	for (unsigned i = 0; i < candidate.size(); i++){		
@@ -270,10 +294,15 @@ vector <double> Triggers::LeptonISO(Pythia *pythia, vector <double> candidate){
 
 			// sum pt of constituents within cone radius
 			if(del_R < LEP_R ) Pt_sum += pythia -> event[j].pT();
+
+			double metric = Pt_sum/pythia -> event[ candidate[i] ].pT() ;
+
+			if( metric > ISO_CUT ) ISO_CUT_FLAG = true;	
 		}
 
-		Iso.push_back(Pt_sum/pythia -> event[ candidate[i] ].pT());	
 	}// end of lepton loop
+	return ISO_CUT_FLAG;
+
 }
 /******************************************************************************//**
 * Efficency callculations
@@ -286,9 +315,9 @@ double Triggers::Efficiency(double accepted, double total){
 /******************************************************************************//**
 * MultiJet Triggers, (1,3,4,5,6) jets 
 **********************************************************************************/
-void Triggers::MultiJetTrigger(){
+void Triggers::MultiJetTriggerHL(){
 	
-	int count [5] = { };
+	int count [6] = { };
 
 
 	for (unsigned i = 0; i < jets.size(); i++) {
@@ -298,59 +327,192 @@ void Triggers::MultiJetTrigger(){
 		if(jets[i].perp() > FOUR_JET_HL     ) 	count[2]++;
 		if(jets[i].perp() > FIVE_JET_HL     ) 	count[3]++;
 		if(jets[i].perp() > SIX_JET_HL      ) 	count[4]++;
+		if(jets[i].perp() > ONE_JET_HL_FAT  ) 	count[5]++;
+
 
 	}// end of jet loop
 
 	if( count[0] > 0) 	N_JET_ONE++;
+	if( count[6] > 0) 	N_JET_ONE_FAT++;
 	if( count[1] > 2) 	N_JET_THREE++;
 	if( count[2] > 3) 	N_JET_FOUR++;
 	if( count[3] > 4) 	N_JET_FIVE++;
 	if( count[4] > 5)	 	N_JET_SIX++;
 
-	MULTIJET_CALL = kTRUE;
+
+	MULTIJET_HL_CALL = true;
 	
+}
+void Triggers::MultiJetTriggerLL(){
+	
+	int count [4] = { };
+
+	for (unsigned i = 0; i < jets.size(); i++) {
+
+		if(jets[i].perp() > ONE_JET_LL      ) 	count[0]++;
+		if(jets[i].perp() > THREE_JET_LL    ) 	count[1]++;
+		if(jets[i].perp() > FOUR_JET_LL     ) 	count[2]++;
+		if(jets[i].perp() > FIVESIX_JET_LL  ) 	count[3]++;
+
+	}// end of jet loop
+
+	if( count[0] > 0) 	N_JET_ONE_L++;
+	if( count[2] > 2) 	N_JET_FOUR_L++;
+	if( count[3] > 3) 	N_JET_FIVE_L++;
+	if( count[3] > 3)	 	N_JET_SIX_L++;
+
+
+	MULTIJET_LL_CALL = true;
+	
+}
+/******************************************************************************//**
+* Missing Transverse Energy (momentum) Trigger 
+**********************************************************************************/
+void Triggers::METTriggerHL(){
+
+	if( TopoMET() > MET_HL) N_MET++;
+
+	MET_HL_CALL = true;
+
+}
+void Triggers::METTriggerLL(){
+
+	if( TopoMET() > MET_LL) N_MET_L++;
+
+	MET_LL_CALL = true;
+
+}
+void Triggers::METTriggerHL(int scheme){
+
+	if( scheme == 0){
+		if( TopoMET() > MET_HL) N_MET++;
+ 	}
+ 	if( scheme == 1){
+ 		if( JetMET() > MET_HL) N_MET++;
+ 	}
+
+ 	MET_HL_CALL = true;
+
+}
+void Triggers::METTriggerLL(int scheme){
+
+	if( scheme == 0){
+		if( TopoMET() > MET_LL) N_MET_L++;
+ 	}
+ 	if( scheme == 1){
+ 		if( JetMET() > MET_LL) N_MET_L++;
+ 	}
+
+ 	MET_LL_CALL = true;
+
 }
 /******************************************************************************//**
 * ElectroWeak Triggers
 **********************************************************************************/
-void Triggers::EWTrigger(Pythia *pythia){
+void Triggers::EWTriggerHL(Pythia *pythia){
 
+	if( LeptonISO( pythia, electron_hl ) ) N_ELECTRON++;
+	if( LeptonISO( pythia, muon_hl     ) ) N_MUON++;
+	if(  gamma_hl.size() > 0 ) N_GAMMA++;
 
-	//if( LeptonISO( pythia, electon ) > ISO_CUT ) N_ELECTRON++;
-	//if( LeptonISO( pythia, muon    ) > ISO_CUT ) N_MUON++;
-	//if( LeptonISO( pythia, gamma   ) > ISO_CUT ) N_GAMMA++;
+	EW_HL_CALL = true;
+
+}
+void Triggers::EWTriggerLL(Pythia *pythia){
+
+	if( LeptonISO( pythia, electron_ll ) ) N_ELECTRON_L++;
+	if( muon_ll.size() > 0  ) N_MUON_L++;
+	if( LeptonISO( pythia, gamma_ll    ) ) N_GAMMA_L++;
+
+	EW_LL_CALL = true;
 
 }
 /******************************************************************************//**
 * HT Trigger using native HT calculation
 **********************************************************************************/
-void Triggers::HtTrigger(){
+void Triggers::HtTriggerHL(){
 
 	if( HT() > HT_HL ) N_HT++;
 
-	HT_CALL = kTRUE;
+	HT_HL_CALL = true;
+
+}
+void Triggers::HtTriggerLL(){
+
+	if( HT() > HT_LL ) N_HT_L++;
+
+	HT_LL_CALL = true;
 
 }
 /******************************************************************************//**
-* Efficiency calls for various triggers
+* High level efficiency calls for various triggers
 **********************************************************************************/
-void Triggers::TriggerEfficiencies( double total ){
+void Triggers::HLTriggerEfficiencies(char *name, double mass, double total ){
 
 	ofstream file;
 
-	file.open ("Zeff.dat", ios::app); 
+	file.open (name, ios::app); 
 
-	if(HT_CALL){
+	file << mass 																<< " ";
 
-		file << Efficiency( N_HT , 				total) << " ";
+	if(HT_HL_CALL){
+
+		file << Efficiency( N_HT , 			   total) << " ";
 	}
-	if(MULTIJET_CALL){
+	if(MULTIJET_HL_CALL){
 
-		file << Efficiency( N_JET_ONE ,   total) << " "
-				 << Efficiency( N_JET_THREE , total) << " "
-				 << Efficiency( N_JET_FOUR ,  total) << " "
-				 << Efficiency( N_JET_FIVE ,  total) << " "
-				 << Efficiency( N_JET_SIX ,   total) << " ";
+		file << Efficiency( N_JET_ONE ,    total) << " "
+				 << Efficiency( N_JET_ONE_FAT, total) << " "
+				 << Efficiency( N_JET_THREE ,  total) << " "
+				 << Efficiency( N_JET_FOUR ,   total) << " "
+				 << Efficiency( N_JET_FIVE ,   total) << " "
+				 << Efficiency( N_JET_SIX ,    total) << " ";
+	}
+	if(EW_HL_CALL){
+		file << Efficiency( N_ELECTRON ,   total) << " "
+				 << Efficiency( N_MUON ,       total) << " "
+				 << Efficiency( N_GAMMA ,      total) << " ";
+
+	}
+	if(MET_HL_CALL){
+		file << Efficiency( N_MET ,        total) << " ";
+	}
+
+	file << endl;
+
+	file.close();
+}
+/******************************************************************************//**
+* Lower level efficiency calls for various triggers
+**********************************************************************************/
+void Triggers::LLTriggerEfficiencies(char *name, double mass, double total ){
+
+	ofstream file;
+
+	file.open (name, ios::app); 
+
+	file << mass 																<< " ";
+
+
+	if(HT_LL_CALL){
+
+		file << Efficiency( N_HT_L , 				total) << " ";
+	}
+	if(MULTIJET_LL_CALL){
+
+		file << Efficiency( N_JET_ONE_L ,   total) << " "
+				 << Efficiency( N_JET_FOUR_L ,  total) << " "
+				 << Efficiency( N_JET_FIVE_L ,  total) << " "
+				 << Efficiency( N_JET_SIX_L ,   total) << " ";
+	}
+	if(EW_LL_CALL){
+		file << Efficiency( N_ELECTRON_L ,  total) << " "
+				 << Efficiency( N_MUON_L ,      total) << " "
+				 << Efficiency( N_GAMMA_L ,     total) << " ";
+
+	}
+	if(MET_LL_CALL){
+		file << Efficiency( N_MET_L ,       total) << " ";
 	}
 
 	file << endl;
