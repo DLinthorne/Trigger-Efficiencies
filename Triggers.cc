@@ -33,7 +33,7 @@ void Triggers::InitializeCounter(){
 	N_MUON_L 						  = 0, N_GAMMA_L 							= 0,
 	N_MET_L 							= 0, N_HT_L 								= 0;
 
-}
+
 /******************************************************************************//**
 * Initialise trigger call flags
 **********************************************************************************/
@@ -51,7 +51,7 @@ void Triggers::InitializeFlags(){
 void Triggers::InitializeMatching(Pythia *pythia)
 {
 
-	UserHooks* matching            = NULL;
+  UserHooks* matching            = NULL;
 
   // For jet matching, initialise the respective user hooks code.
   CombineMatchingInput combined;
@@ -95,7 +95,7 @@ void Triggers::eventElectroWeak(Pythia *pythia, fastjet::JetDefinition jetDef)
 			if( !pythia -> event[i].isVisible() ) continue;
 
 			if(abs( pythia -> event[i].eta() ) > TRACKER_ETA) continue;
-
+			
 			fastjet::PseudoJet particleTemp = pythia -> event[i];
 
 			fjInputs.push_back( particleTemp);
@@ -182,8 +182,7 @@ void Triggers::eventTree(Pythia *pythia, fastjet::JetDefinition jetDef)
 /******************************************************************************//**
 * Jet clustering algorithm
 **********************************************************************************/
-void Triggers::JetClustering(vector <fastjet::PseudoJet> fjInputs, 
-																		 fastjet::JetDefinition jetDef){
+void Triggers::JetClustering(vector <fastjet::PseudoJet> fjInputs, fastjet::JetDefinition jetDef){
 
 	vector <fastjet::PseudoJet> inclusiveJets;
 
