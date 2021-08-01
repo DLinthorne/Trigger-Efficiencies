@@ -35,14 +35,14 @@ public:
           HEC_MIN_ETA, HEC_MAX_ETA, FCAL_MIN_ETA, FCAL_MAX_ETA;
 
   //Tracker geometry constants
-	double TRACKER_ETA;
+  double TRACKER_ETA;
 
-	//FastJet Clustering Algorithm for General-KT: -1 = anti-kT; 0 = C/A; 1 = kT.
+  //FastJet Clustering Algorithm for General-KT: -1 = anti-kT; 0 = C/A; 1 = kT.
   double POWER;     
 
   //High level MET and Lepton thresholds 
-	double MET_HL, ELECTRON_HL, MUON_HL, GAMMA_HL,
-					DI_ELECTRON_HL, DI_MUON_HL;
+  double MET_HL, ELECTRON_HL, MUON_HL, GAMMA_HL,
+          DI_ELECTRON_HL, DI_MUON_HL;
 
   //High level multijet and HT thresholds 
   double HT_HL , THREE_JET_HL , FOUR_JET_HL , FIVE_JET_HL, SIX_JET_HL , ONE_JET_HL_FAT , ONE_JET_HL_THIN;
@@ -54,14 +54,14 @@ public:
   //Low level multijet and HT thresholds #3x50 and 4x15
   double HT_LL , THREE_JET_LL, FOUR_JET_LL, FIVESIX_JET_LL , ONE_JET_LL ;
 
-	//Atlas leption isolation cut
-	double ISO_CUT_Tight, ISO_CUT_Loose;
+  //Atlas leption isolation cut
+  double ISO_CUT_Tight, ISO_CUT_Loose;
 
  //**********************************************************************************
  // Variables
  //**********************************************************************************
 private:
-	vector <fastjet::PseudoJet> fjInputs;
+  vector <fastjet::PseudoJet> fjInputs;
   vector <fastjet::PseudoJet> jets;
   vector <int> count;
   vector <double> electron_hl;
@@ -71,7 +71,7 @@ private:
   vector <double> muon_ll;
   vector <double> gamma_ll;
 
-	Vec4 missingETvec;
+  Vec4 missingETvec;
   Vec4 missingETvecJet; // initialization worries??? //
 
   int N_JET_ONE, N_JET_THREE, N_JET_FOUR, N_JET_FIVE, N_JET_SIX, N_HT,
@@ -86,7 +86,7 @@ private:
 // Methods
 //**********************************************************************************
 public:
-	Triggers();
+  Triggers();
   virtual ~Triggers();
 
   //Jet Algorithm

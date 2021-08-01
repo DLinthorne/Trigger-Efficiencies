@@ -29,7 +29,7 @@ Triggers::Triggers(){
 
   //High level MET and Lepton thresholds 
   MET_HL = 110, ELECTRON_HL = 26, MUON_HL = 26, GAMMA_HL = 140,
-          DI_ELECTRON_HL = 17, DI_MUON_HL = 14;
+  DI_ELECTRON_HL = 17, DI_MUON_HL = 14;
 
   //High level multijet and HT thresholds 
   HT_HL = 850, THREE_JET_HL = 175, FOUR_JET_HL = 100, FIVE_JET_HL = 70, 
@@ -37,7 +37,7 @@ Triggers::Triggers(){
 
   //Low level MET and lepton thresholds
   MET_LL = 50, ELECTRON_LL = 22, MUON_LL = 20, GAMMA_LL = 20,
-          DI_ELECTRON_LL = 17, DI_MUON_LL = 14;
+  DI_ELECTRON_LL = 17, DI_MUON_LL = 14;
 
   //Low level multijet and HT thresholds #3x50 and 4x15
   HT_LL = 0, THREE_JET_LL = 0, FOUR_JET_LL= 50, FIVESIX_JET_LL = 15, ONE_JET_LL = 100;
@@ -59,18 +59,18 @@ Triggers::~Triggers(){
 void Triggers::InitializeCounter(){
 
   // High level counters
-  N_JET_ONE							= 0, N_JET_THREE					  = 0,
-  N_JET_FOUR 					  = 0, N_JET_FIVE			  			= 0,
-  N_JET_SIX							= 0, N_ELECTRON 						= 0,
-  N_MUON 							  = 0, N_GAMMA 								= 0,
-  N_MET 								= 0, N_HT 									= 0,
-  N_JET_ONE_FAT					= 0;
+  N_JET_ONE	    = 0, N_JET_THREE  = 0,
+  N_JET_FOUR    = 0, N_JET_FIVE   = 0,
+  N_JET_SIX	    = 0, N_ELECTRON   = 0,
+  N_MUON 	      = 0, N_GAMMA    	= 0,
+  N_MET        	= 0, N_HT         = 0,
+  N_JET_ONE_FAT	= 0;
   // Lower level counters
-  N_JET_ONE_L						= 0, N_JET_THREE_L				  = 0,
-  N_JET_FOUR_L 				  = 0, N_JET_FIVE_L			  		= 0,
-  N_JET_SIX_L						= 0, N_ELECTRON_L 					= 0,
-  N_MUON_L 						  = 0, N_GAMMA_L 							= 0,
-  N_MET_L 							= 0, N_HT_L 								= 0;
+  N_JET_ONE_L   = 0, N_JET_THREE_L = 0,
+  N_JET_FOUR_L  = 0, N_JET_FIVE_L  = 0,
+  N_JET_SIX_L	  = 0, N_ELECTRON_L  = 0,
+  N_MUON_L    	= 0, N_GAMMA_L     = 0,
+  N_MET_L        = 0, N_HT_L       = 0;
 
 }
 /******************************************************************************//**
