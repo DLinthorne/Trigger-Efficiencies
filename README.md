@@ -23,5 +23,19 @@ make efftemp
 ```
 ./efftemp model_script_X.dat 
 ```
+## References
 
+If you use this code, please cite our paper:
+
+```
+@article{Linthorne:2021oiz,
+    author = "Linthorne, Dylan and Stolarski, Daniel",
+    title = "{Triggering on Emerging Jets}",
+    eprint = "2103.08620",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    month = "3",
+    year = "2021"
+}
+```
   
