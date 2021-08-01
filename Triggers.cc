@@ -572,6 +572,5 @@ void Triggers::LLTriggerEfficiencies(char *name, double mass, double total ){
 	}
 
 	file << endl;
-
 	file.close();
 }
