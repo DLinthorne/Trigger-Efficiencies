@@ -1,4 +1,4 @@
-//* 
+  //* 
 //* Author: Dylan Lithorne
 //*
 
@@ -25,37 +25,37 @@ class Triggers
 //**********************************************************************************
 public:
   //Jets angular parameter
-  const double R = 0.4;
+  double R;
 
   //Lepton isolation cone radius
-  const double LEP_R = 0.5;   //*** Is this correct? ****
+  double LEP_R, Eiso_R, Miso_R, Giso_R;
 
   //Calorimeter detector geometry constants
-  const double BARREL_ETA = 1.37, ENDCAP_MIN_ETA = 1.52, ENDCAP_MAX_ETA = 2.37,
-          HEC_MIN_ETA = 2.37, HEC_MAX_ETA = 3.1, FCAL_MIN_ETA = 3.1, FCAL_MAX_ETA = 4.9;
+  double BARREL_ETA, ENDCAP_MIN_ETA, ENDCAP_MAX_ETA,
+          HEC_MIN_ETA, HEC_MAX_ETA, FCAL_MIN_ETA, FCAL_MAX_ETA;
 
   //Tracker geometry constants
-	const double TRACKER_ETA = 2.49;
+	double TRACKER_ETA;
 
 	//FastJet Clustering Algorithm for General-KT: -1 = anti-kT; 0 = C/A; 1 = kT.
-  const double POWER   = -1;     
+  double POWER;     
 
   //High level MET and Lepton thresholds 
-	const double MET_HL = 110, ELECTRON_HL = 26, MUON_HL = 26, GAMMA_HL = 140,
-					DI_ELECTRON_HL = 17, DI_MUON_HL = 14;
+	double MET_HL, ELECTRON_HL, MUON_HL, GAMMA_HL,
+					DI_ELECTRON_HL, DI_MUON_HL;
 
   //High level multijet and HT thresholds 
-  const double HT_HL = 850, THREE_JET_HL = 175, FOUR_JET_HL = 100, FIVE_JET_HL      = 70, SIX_JET_HL = 60, ONE_JET_HL_FAT = 420, ONE_JET_HL_THIN = 380;
+  double HT_HL , THREE_JET_HL , FOUR_JET_HL , FIVE_JET_HL, SIX_JET_HL , ONE_JET_HL_FAT , ONE_JET_HL_THIN;
 
   //Low level MET and lepton thresholds
-  const double MET_LL = 50, ELECTRON_LL = 22, MUON_LL = 20, GAMMA_LL = 20,
-          DI_ELECTRON_LL = 17, DI_MUON_LL = 14;
+  double MET_LL, ELECTRON_LL , MUON_LL, GAMMA_LL ,
+          DI_ELECTRON_LL , DI_MUON_LL;
 
   //Low level multijet and HT thresholds #3x50 and 4x15
-  const double HT_LL = 0, THREE_JET_LL = 0, FOUR_JET_LL= 50, FIVESIX_JET_LL = 15, ONE_JET_LL = 100;
+  double HT_LL , THREE_JET_LL, FOUR_JET_LL, FIVESIX_JET_LL , ONE_JET_LL ;
 
 	//Atlas leption isolation cut
-	const double ISO_CUT = 0.1;
+	double ISO_CUT_Tight, ISO_CUT_Loose;
 
  //**********************************************************************************
  // Variables
@@ -118,7 +118,7 @@ public:
   void   METTriggerLL();
   void   METTriggerLL(int scheme);
 
-  bool LeptonISO(Pythia *pythia, vector <double> candidate);
+  bool LeptonISO(Pythia *pythia, vector <double> candidate, int type);
 
   vector <fastjet::PseudoJet> SortedJets();
   vector <double> electronsHL();
@@ -129,7 +129,7 @@ public:
   vector <double> gammasLL();
 
 private:
-  void JetClustering( vector <fastjet::PseudoJet> fjInputs,  fastjet::JetDefinition jetDef);
+  void JetClustering( fastjet::JetDefinition jetDef);
   void InitializeCounter();
 
 

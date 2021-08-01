@@ -1,4 +1,3 @@
-
 #include "Triggers.h"
 
 /******************************************************************************//**
@@ -8,6 +7,45 @@ Triggers::Triggers(){
 
 	InitializeCounter();
 	InitializeFlags();
+
+	  //Jets angular parameter
+  R = 0.4;
+	Eiso_R = 0.2;
+	Miso_R = 0.3;
+	Giso_R = 0.4;
+
+  //Lepton isolation cone radius
+  LEP_R = 0.5;   //*** Is this correct? ****
+
+  //Calorimeter detector geometry constants
+  BARREL_ETA = 1.37, ENDCAP_MIN_ETA = 1.52, ENDCAP_MAX_ETA = 2.37,
+  HEC_MIN_ETA = 2.37, HEC_MAX_ETA = 3.1, FCAL_MIN_ETA = 3.1, FCAL_MAX_ETA = 4.9;
+
+  //Tracker geometry constants
+	TRACKER_ETA = 2.49;
+
+	//FastJet Clustering Algorithm for General-KT: -1 = anti-kT; 0 = C/A; 1 = kT.
+  POWER   = -1;     
+
+  //High level MET and Lepton thresholds 
+	MET_HL = 110, ELECTRON_HL = 26, MUON_HL = 26, GAMMA_HL = 140,
+					DI_ELECTRON_HL = 17, DI_MUON_HL = 14;
+
+  //High level multijet and HT thresholds 
+  HT_HL = 850, THREE_JET_HL = 175, FOUR_JET_HL = 100, FIVE_JET_HL = 70, 
+	SIX_JET_HL = 60, ONE_JET_HL_FAT = 420, ONE_JET_HL_THIN = 380;
+
+  //Low level MET and lepton thresholds
+  MET_LL = 50, ELECTRON_LL = 22, MUON_LL = 20, GAMMA_LL = 20,
+          DI_ELECTRON_LL = 17, DI_MUON_LL = 14;
+
+  //Low level multijet and HT thresholds #3x50 and 4x15
+  HT_LL = 0, THREE_JET_LL = 0, FOUR_JET_LL= 50, FIVESIX_JET_LL = 15, ONE_JET_LL = 100;
+
+	//Atlas leption isolation cut
+	ISO_CUT_Tight = 0.06;
+	ISO_CUT_Loose = 0.15;
+
 }
 /******************************************************************************//**
 * Destructor
@@ -34,7 +72,7 @@ void Triggers::InitializeCounter(){
 	N_MUON_L 						  = 0, N_GAMMA_L 							= 0,
 	N_MET_L 							= 0, N_HT_L 								= 0;
 
-
+}
 /******************************************************************************//**
 * Initialise trigger call flags
 **********************************************************************************/
@@ -52,7 +90,7 @@ void Triggers::InitializeFlags(){
 void Triggers::InitializeMatching(Pythia *pythia)
 {
 
-  UserHooks* matching            = NULL;
+	UserHooks* matching            = NULL;
 
   // For jet matching, initialise the respective user hooks code.
   CombineMatchingInput combined;
@@ -96,7 +134,7 @@ void Triggers::eventElectroWeak(Pythia *pythia, fastjet::JetDefinition jetDef)
 			if( !pythia -> event[i].isVisible() ) continue;
 
 			if(abs( pythia -> event[i].eta() ) > TRACKER_ETA) continue;
-			
+
 			fastjet::PseudoJet particleTemp = pythia -> event[i];
 
 			fjInputs.push_back( particleTemp);
@@ -127,7 +165,7 @@ void Triggers::eventElectroWeak(Pythia *pythia, fastjet::JetDefinition jetDef)
 	    }
 		}
 	}// end of particle 
-	JetClustering(fjInputs, jetDef);
+	JetClustering( jetDef);
 
 }
 /******************************************************************************//**
@@ -135,6 +173,8 @@ void Triggers::eventElectroWeak(Pythia *pythia, fastjet::JetDefinition jetDef)
 **********************************************************************************/
 void Triggers::eventTree(Pythia *pythia)
 {
+
+	missingETvec.reset();
 
 	for (int i = 0; i < pythia -> event.size(); ++i) {
 		
@@ -156,6 +196,7 @@ void Triggers::eventTree(Pythia *pythia, fastjet::JetDefinition jetDef)
 {
 
 	fjInputs.resize(0);
+	missingETvec.reset();
 
 	for (int i = 0; i < pythia -> event.size(); ++i) {
 		
@@ -178,14 +219,16 @@ void Triggers::eventTree(Pythia *pythia, fastjet::JetDefinition jetDef)
 
 		}
 	}// end of particle 
-	JetClustering(fjInputs, jetDef);
+	JetClustering(jetDef);
 }
 /******************************************************************************//**
 * Jet clustering algorithm
 **********************************************************************************/
-void Triggers::JetClustering(vector <fastjet::PseudoJet> fjInputs, fastjet::JetDefinition jetDef){
+void Triggers::JetClustering( fastjet::JetDefinition jetDef){
 
 	vector <fastjet::PseudoJet> inclusiveJets;
+
+	jets.resize(0);
 
 	fastjet::ClusterSequence clustSeq(fjInputs, jetDef);
 
@@ -269,7 +312,7 @@ double Triggers::HT(){
 /******************************************************************************//**
 * Lepton isolation algorithm: returns vector of candidate I-variable
 **********************************************************************************/
-bool Triggers::LeptonISO(Pythia *pythia, vector <double> candidate){
+bool Triggers::LeptonISO(Pythia *pythia, vector <double> candidate, int type){
 
 	bool ISO_CUT_FLAG = false;
 
@@ -277,9 +320,16 @@ bool Triggers::LeptonISO(Pythia *pythia, vector <double> candidate){
 	for (unsigned i = 0; i < candidate.size(); i++){		
 	  
 	  double Pt_sum = 0;
+	  double Et_sum = 0;
 
 		for (unsigned j = 0; j < pythia -> event.size(); ++j){
 				
+			if( !pythia -> event[j].isFinal() ) continue;
+
+			if( !pythia -> event[j].isVisible() ) continue;
+
+			if(abs( pythia -> event[j].eta() ) > TRACKER_ETA) continue;
+
 			// pseudorapidity difference 
 			double dEta = pythia -> event[j].y() - pythia -> event[ candidate[i] ].y();
 
@@ -292,13 +342,19 @@ bool Triggers::LeptonISO(Pythia *pythia, vector <double> candidate){
 			// distance/metric in phi-eta system
 			double del_R = sqrt( pow2(dEta) + pow2(dPhi) );
 
-			// sum pt of constituents within cone radius
-			if(del_R < LEP_R ) Pt_sum += pythia -> event[j].pT();
-
-			double metric = Pt_sum/pythia -> event[ candidate[i] ].pT() ;
-
-			if( metric > ISO_CUT ) ISO_CUT_FLAG = true;	
+			// sum pt of constituents within cone radius for either electron, muon, gamma
+			if(type == 0 && del_R <= Eiso_R ) Pt_sum += pythia -> event[j].pT();
+			if(type == 1 && del_R <= Miso_R ) Pt_sum += pythia -> event[j].pT();
+			if(type == 2 && del_R <= Giso_R ) Et_sum += pythia -> event[j].eT();
 		}
+		Et_sum -= pythia -> event[ candidate[i] ].eT();
+		double metric = (Pt_sum - pythia -> event[ candidate[i] ].pT() )/pythia -> event[ candidate[i] ].pT();
+		double ISO_CUT_Gamma = 0.022 * pythia -> event[ candidate[i] ].eT() + 2.45;
+
+		// Isolation criteria for either lepton/gamma
+		if (type == 0 && metric <= ISO_CUT_Loose ) ISO_CUT_FLAG = true;				
+		if (type == 1 && metric <= ISO_CUT_Loose ) ISO_CUT_FLAG = true;				
+		if (type == 2 && Et_sum <= ISO_CUT_Gamma ) ISO_CUT_FLAG = true;						
 
 	}// end of lepton loop
 	return ISO_CUT_FLAG;
@@ -333,7 +389,7 @@ void Triggers::MultiJetTriggerHL(){
 	}// end of jet loop
 
 	if( count[0] > 0) 	N_JET_ONE++;
-	if( count[6] > 0) 	N_JET_ONE_FAT++;
+	if( count[5] > 0) 	N_JET_ONE_FAT++;
 	if( count[1] > 2) 	N_JET_THREE++;
 	if( count[2] > 3) 	N_JET_FOUR++;
 	if( count[3] > 4) 	N_JET_FIVE++;
@@ -411,8 +467,8 @@ void Triggers::METTriggerLL(int scheme){
 **********************************************************************************/
 void Triggers::EWTriggerHL(Pythia *pythia){
 
-	if( LeptonISO( pythia, electron_hl ) ) N_ELECTRON++;
-	if( LeptonISO( pythia, muon_hl     ) ) N_MUON++;
+	if( LeptonISO( pythia, electron_hl, 0 ) ) N_ELECTRON++;
+	if( LeptonISO( pythia, muon_hl, 1     ) ) N_MUON++;
 	if(  gamma_hl.size() > 0 ) N_GAMMA++;
 
 	EW_HL_CALL = true;
@@ -420,9 +476,9 @@ void Triggers::EWTriggerHL(Pythia *pythia){
 }
 void Triggers::EWTriggerLL(Pythia *pythia){
 
-	if( LeptonISO( pythia, electron_ll ) ) N_ELECTRON_L++;
+	if( LeptonISO( pythia, electron_ll, 0 ) ) N_ELECTRON_L++;
 	if( muon_ll.size() > 0  ) N_MUON_L++;
-	if( LeptonISO( pythia, gamma_ll    ) ) N_GAMMA_L++;
+	if( LeptonISO( pythia, gamma_ll, 2 ) ) N_GAMMA_L++;
 
 	EW_LL_CALL = true;
 
