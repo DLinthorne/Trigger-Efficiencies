@@ -59,11 +59,11 @@ Triggers::~Triggers(){
 void Triggers::InitializeCounter(){
 
   // High level counters
-  N_JET_ONE	    = 0, N_JET_THREE  = 0,
-  N_JET_FOUR    = 0, N_JET_FIVE   = 0,
-  N_JET_SIX	    = 0, N_ELECTRON   = 0,
-  N_MUON 	      = 0, N_GAMMA    	= 0,
-  N_MET        	= 0, N_HT         = 0,
+  N_JET_ONE      = 0, N_JET_THREE  = 0,
+  N_JET_FOUR     = 0, N_JET_FIVE   = 0,
+  N_JET_SIX      = 0, N_ELECTRON   = 0,
+  N_MUON         = 0, N_GAMMA     	= 0,
+  N_MET          = 0, N_HT         = 0,
   N_JET_ONE_FAT	= 0;
   // Lower level counters
   N_JET_ONE_L   = 0, N_JET_THREE_L = 0,
@@ -78,10 +78,10 @@ void Triggers::InitializeCounter(){
 **********************************************************************************/
 void Triggers::InitializeFlags(){
 
-  HT_HL_CALL				= false , 	HT_LL_CALL				= false,
+  HT_HL_CALL        = false , 	HT_LL_CALL        = false,
   MULTIJET_HL_CALL  = false ,   MULTIJET_LL_CALL  = false,
-  EW_HL_CALL				= false , 	EW_LL_CALL				= false,
-  MET_HL_CALL 			= false ,	  MET_LL_CALL 			= false;
+  EW_HL_CALL        = false , 	EW_LL_CALL        = false,
+  MET_HL_CALL       = false ,	  MET_LL_CALL       = false;
 
 }
 /******************************************************************************//**
@@ -90,7 +90,7 @@ void Triggers::InitializeFlags(){
 void Triggers::InitializeMatching(Pythia *pythia)
 {
 
-  UserHooks* matching            = NULL;
+  UserHooks* matching         = NULL;
 
   // For jet matching, initialise the respective user hooks code.
   CombineMatchingInput combined;
